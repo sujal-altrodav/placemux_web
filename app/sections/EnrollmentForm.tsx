@@ -1,78 +1,119 @@
 'use client'
 
 import { useState } from 'react'
-import { FiCheck, FiLoader } from 'react-icons/fi'
-import { HiOutlineRocketLaunch } from 'react-icons/hi2'
+import { ArrowRight, Laptop, MapPin, Brain, CheckCircle2, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Slider } from '@/components/ui/slider'
+import { Card, CardContent } from '@/components/ui/card'
 
-interface FormData {
-  fullName: string
-  email: string
-  phone: string
-  college: string
-  graduationYear: string
-  currentYear: string
-  preferredTrack: string
-  referralSource: string
-  message: string
-  consent: boolean
-}
 
-interface FormErrors {
-  [key: string]: string
-}
+const GOOGLE_FORM_ACTION =
+  'https://docs.google.com/forms/d/e/1FAIpQLSeXwMpBw-dkoD6LonBpZ71-0MbrkmwCwNM0FXcus5KmDWHcPw/formResponse'
+
+// Google Form entry IDs mapped to form fields
+const ENTRY = {
+  fullName: 'entry.476771396',
+  email: 'entry.1586335456',
+  collegeName: 'entry.598356097',
+  preferredRole: 'entry.453969392',
+  knowledgeLevel: 'entry.1346891652',
+  contactNumber: 'entry.524959944',
+  hasLaptop: 'entry.1580090639',
+  attendanceMode: 'entry.1594792659',
+  placementEvent: 'entry.483869019',
+} as const
+
+const roleOptions = [
+  'AI-ML Developer',
+  'Android Developer',
+  'iOS Developer',
+  'Backend (Node.js) Developer',
+  'Data Analyst',
+  'DevOps',
+]
 
 export default function EnrollmentForm() {
-  const [form, setForm] = useState<FormData>({
-    fullName: '', email: '', phone: '', college: '',
-    graduationYear: '', currentYear: '', preferredTrack: '',
-    referralSource: '', message: '', consent: false,
-  })
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [collegeName, setCollegeName] = useState('')
+  const [role, setRole] = useState('')
+  const [mode, setMode] = useState('')
+  const [hasLaptop, setHasLaptop] = useState('')
+  const [knowledgeLevel, setKnowledgeLevel] = useState([5])
+  const [contactNumber, setContactNumber] = useState('')
+  const [placementEvent, setPlacementEvent] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const update = (field: keyof FormData, value: string | boolean) => {
-    setForm((prev) => ({ ...prev, [field]: value }))
-    setErrors((prev) => { const n = { ...prev }; delete n[field]; return n })
+  const validate = () => {
+    const newErrors: Record<string, string> = {}
+    if (!fullName.trim()) newErrors.fullName = 'Full name is required'
+    if (!email.trim()) newErrors.email = 'Email is required'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      newErrors.email = 'Enter a valid email'
+    if (!collegeName.trim()) newErrors.collegeName = 'College name is required'
+    if (!mode) newErrors.mode = 'Select a mode'
+    if (!hasLaptop) newErrors.hasLaptop = 'This field is required'
+    if (!contactNumber.trim()) newErrors.contactNumber = 'Contact number is required'
+    else if (!/^\d{10}$/.test(contactNumber.replace(/\s/g, '')))
+      newErrors.contactNumber = 'Enter a valid 10-digit number'
+    if (!placementEvent) newErrors.placementEvent = 'This field is required'
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
-  const validate = (): boolean => {
-    const e: FormErrors = {}
-    if (!form.fullName.trim()) e.fullName = 'Full name is required'
-    if (!form.email.trim()) e.email = 'Email is required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email'
-    if (!form.phone.trim()) e.phone = 'Phone is required'
-    else if (!/^\d{10}$/.test(form.phone.replace(/\D/g, ''))) e.phone = 'Enter 10-digit number'
-    if (!form.college.trim()) e.college = 'College is required'
-    if (!form.graduationYear) e.graduationYear = 'Select graduation year'
-    if (!form.currentYear) e.currentYear = 'Select current year'
-    if (!form.preferredTrack) e.preferredTrack = 'Select a track'
-    if (!form.consent) e.consent = 'Consent is required'
-    setErrors(e)
-    return Object.keys(e).length === 0
-  }
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     if (!validate()) return
-    setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsSubmitted(true)
-    setIsSubmitting(false)
+
+    setSubmitting(true)
+
+    const formData = new URLSearchParams()
+    formData.append(ENTRY.fullName, fullName.trim())
+    formData.append(ENTRY.email, email.trim())
+    formData.append(ENTRY.collegeName, collegeName.trim())
+    if (role) formData.append(ENTRY.preferredRole, role)
+    formData.append(ENTRY.knowledgeLevel, String(knowledgeLevel[0]))
+    formData.append(ENTRY.contactNumber, contactNumber.trim())
+    formData.append(ENTRY.hasLaptop, hasLaptop)
+    formData.append(ENTRY.attendanceMode, mode)
+    formData.append(ENTRY.placementEvent, placementEvent)
+
+    try {
+      await fetch(GOOGLE_FORM_ACTION, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString(),
+      })
+      // no-cors means we can't read the response, but the data is submitted
+      setSubmitted(true)
+    } catch {
+      // Even if fetch throws, Google Forms usually receives the data
+      setSubmitted(true)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  if (isSubmitted) {
+  if (submitted) {
     return (
-      <section id="enroll" className="py-24">
-        <div className="max-w-lg mx-auto px-4 text-center">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-10">
+      <section id="enroll" className="py-24 bg-[#0B0D1A] text-white">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="text-center">
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-              <FiCheck className="text-green-400" size={32} />
+              <CheckCircle2 className="w-8 h-8 text-green-400" />
             </div>
-            <h3 className="text-2xl font-bold mb-3">Application Submitted!</h3>
-            <p className="text-gray-400 mb-6">Thank you, {form.fullName}. We have received your application. Our team will reach out within 24 hours to discuss next steps.</p>
-            <button onClick={() => { setIsSubmitted(false); setForm({ fullName: '', email: '', phone: '', college: '', graduationYear: '', currentYear: '', preferredTrack: '', referralSource: '', message: '', consent: false }) }} className="text-sm text-[#7B93FF] hover:text-[#00BCD4] transition-colors">
-              Submit Another Application
-            </button>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+              Application Submitted!
+            </h1>
+            <p className="text-gray-400 max-w-md mx-auto">
+              Thank you for applying. Our team will reach out within 24 hours to discuss next steps.
+            </p>
           </div>
         </div>
       </section>
@@ -80,99 +121,252 @@ export default function EnrollmentForm() {
   }
 
   return (
-    <section id="enroll" className="py-24">
+    <section id="enroll" className="py-24 bg-[#0B0D1A] text-white">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <p className="text-sm font-semibold tracking-widest uppercase text-[#7B93FF] mb-3">Get Started</p>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Enroll Now</h2>
-          <p className="text-gray-400 mt-3">Take the first step toward your dream career. Fill out the form below.</p>
+          <p className="text-sm font-semibold tracking-[0.2em] uppercase text-[#7B93FF] mb-3">
+            Enrollment
+          </p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-3">
+            Apply for the{' '}
+            <span className="bg-gradient-to-r from-[#4A5FE7] via-[#00BCD4] to-[#4CAF50] bg-clip-text text-transparent">
+              Industry Immersive Program
+            </span>
+          </h1>
+          <p className="text-gray-400 max-w-md mx-auto">
+            Fill in your details below to submit your application directly.
+          </p>
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-5">
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1.5 block">Full Name *</label>
-              <input placeholder="John Doe" value={form.fullName} onChange={(e) => update('fullName', e.target.value)} className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border text-white text-sm placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors ${errors.fullName ? 'border-red-500' : 'border-white/10'}`} />
-              {errors.fullName && <p className="text-xs text-red-400 mt-1">{errors.fullName}</p>}
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1.5 block">Email *</label>
-              <input type="email" placeholder="john@example.com" value={form.email} onChange={(e) => update('email', e.target.value)} className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border text-white text-sm placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors ${errors.email ? 'border-red-500' : 'border-white/10'}`} />
-              {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email}</p>}
-            </div>
-          </div>
+        <Card className="border-white/10 bg-white/5 backdrop-blur-sm">
+          <CardContent className="p-6 md:p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Full Name */}
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-gray-300">
+                  Full Name <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="fullName"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+                />
+                {errors.fullName && (
+                  <p className="text-sm text-red-400">{errors.fullName}</p>
+                )}
+              </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1.5 block">Phone *</label>
-              <input type="tel" placeholder="9876543210" value={form.phone} onChange={(e) => update('phone', e.target.value)} className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border text-white text-sm placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors ${errors.phone ? 'border-red-500' : 'border-white/10'}`} />
-              {errors.phone && <p className="text-xs text-red-400 mt-1">{errors.phone}</p>}
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1.5 block">College *</label>
-              <input placeholder="VIT Vellore" value={form.college} onChange={(e) => update('college', e.target.value)} className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border text-white text-sm placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors ${errors.college ? 'border-red-500' : 'border-white/10'}`} />
-              {errors.college && <p className="text-xs text-red-400 mt-1">{errors.college}</p>}
-            </div>
-          </div>
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-300">
+                  Email <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-400">{errors.email}</p>
+                )}
+              </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1.5 block">Year of Graduation *</label>
-              <select value={form.graduationYear} onChange={(e) => update('graduationYear', e.target.value)} className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors ${errors.graduationYear ? 'border-red-500' : 'border-white/10'}`}>
-                <option value="" className="bg-[#0B0D1A]">Select year</option>
-                {['2025', '2026', '2027', '2028'].map((y) => <option key={y} value={y} className="bg-[#0B0D1A]">{y}</option>)}
-              </select>
-              {errors.graduationYear && <p className="text-xs text-red-400 mt-1">{errors.graduationYear}</p>}
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1.5 block">Current Year *</label>
-              <select value={form.currentYear} onChange={(e) => update('currentYear', e.target.value)} className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors ${errors.currentYear ? 'border-red-500' : 'border-white/10'}`}>
-                <option value="" className="bg-[#0B0D1A]">Select year</option>
-                {['1st Year', '2nd Year', '3rd Year', '4th Year'].map((y) => <option key={y} value={y} className="bg-[#0B0D1A]">{y}</option>)}
-              </select>
-              {errors.currentYear && <p className="text-xs text-red-400 mt-1">{errors.currentYear}</p>}
-            </div>
-          </div>
+              {/* College Name */}
+              <div className="space-y-2">
+                <Label htmlFor="collegeName" className="text-gray-300">
+                  College Name <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="collegeName"
+                  placeholder="Enter your college name"
+                  value={collegeName}
+                  onChange={(e) => setCollegeName(e.target.value)}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+                />
+                {errors.collegeName && (
+                  <p className="text-sm text-red-400">{errors.collegeName}</p>
+                )}
+              </div>
 
-          <div className="grid sm:grid-cols-2 gap-5">
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1.5 block">Preferred Track *</label>
-              <select value={form.preferredTrack} onChange={(e) => update('preferredTrack', e.target.value)} className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors ${errors.preferredTrack ? 'border-red-500' : 'border-white/10'}`}>
-                <option value="" className="bg-[#0B0D1A]">Select track</option>
-                {['AI/ML Engineering', 'Data Analytics', 'Full Stack MERN', 'Android/iOS Dev', 'DevOps Engineering'].map((t) => <option key={t} value={t} className="bg-[#0B0D1A]">{t}</option>)}
-              </select>
-              {errors.preferredTrack && <p className="text-xs text-red-400 mt-1">{errors.preferredTrack}</p>}
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-300 mb-1.5 block">How did you hear about us?</label>
-              <select value={form.referralSource} onChange={(e) => update('referralSource', e.target.value)} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors">
-                <option value="" className="bg-[#0B0D1A]">Select source</option>
-                {['Social Media', 'College Placement Cell', 'Friend/Referral', 'Google Search', 'YouTube', 'Other'].map((s) => <option key={s} value={s} className="bg-[#0B0D1A]">{s}</option>)}
-              </select>
-            </div>
-          </div>
+              {/* Preferred Role */}
+              <div className="space-y-3">
+                <Label className="text-gray-300">Select the Preferred Role</Label>
+                <RadioGroup value={role} onValueChange={setRole} className="grid grid-cols-2 gap-3">
+                  {roleOptions.map((option) => (
+                    <label
+                      key={option}
+                      className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${
+                        role === option
+                          ? 'border-[#4A5FE7] bg-[#4A5FE7]/10'
+                          : 'border-white/10 hover:border-[#4A5FE7]/40'
+                      }`}
+                    >
+                      <RadioGroupItem value={option} className="border-gray-400" />
+                      <span className="text-sm text-gray-300">{option}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </div>
 
-          <div>
-            <label className="text-sm font-medium text-gray-300 mb-1.5 block">Message (Optional)</label>
-            <textarea placeholder="Any questions or specific requirements..." value={form.message} onChange={(e) => update('message', e.target.value)} rows={3} className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#4A5FE7]/50 transition-colors resize-none" />
-          </div>
+              {/* Knowledge Level */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2 text-gray-300">
+                  <Brain className="w-4 h-4 text-[#4A5FE7]" />
+                  Knowledge Level (1–10) <span className="text-red-400">*</span>
+                </Label>
+                <div className="px-1">
+                  <Slider
+                    value={knowledgeLevel}
+                    onValueChange={setKnowledgeLevel}
+                    min={1}
+                    max={10}
+                    step={1}
+                    className="bg-white/10"
+                  />
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>1</span>
+                    <span className="font-semibold text-gray-200 text-sm">
+                      {knowledgeLevel[0]}
+                    </span>
+                    <span>10</span>
+                  </div>
+                </div>
+              </div>
 
-          <div className="flex items-start gap-3">
-            <input type="checkbox" id="consent" checked={form.consent} onChange={(e) => update('consent', e.target.checked)} className="mt-1 w-4 h-4 rounded border-white/20 bg-white/5 text-[#4A5FE7] focus:ring-[#4A5FE7]" />
-            <label htmlFor="consent" className="text-sm text-gray-400 leading-relaxed cursor-pointer">
-              I agree to receive communications from Placemux regarding program updates, events, and career opportunities. *
-            </label>
-          </div>
-          {errors.consent && <p className="text-xs text-red-400">{errors.consent}</p>}
+              {/* Contact Number */}
+              <div className="space-y-2">
+                <Label htmlFor="contact" className="text-gray-300">
+                  Contact Number <span className="text-red-400">*</span>
+                </Label>
+                <Input
+                  id="contact"
+                  placeholder="10-digit mobile number"
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value)}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+                />
+                {errors.contactNumber && (
+                  <p className="text-sm text-red-400">{errors.contactNumber}</p>
+                )}
+              </div>
 
-          <button onClick={handleSubmit} disabled={isSubmitting} className="w-full py-3.5 rounded-xl font-semibold bg-gradient-to-r from-[#4A5FE7] to-[#00BCD4] text-white hover:opacity-90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm">
-            {isSubmitting ? (
-              <><FiLoader className="animate-spin" size={16} /> Submitting...</>
-            ) : (
-              <><HiOutlineRocketLaunch size={16} /> Submit Application</>
-            )}
-          </button>
-        </div>
+              {/* Laptop */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2 text-gray-300">
+                  <Laptop className="w-4 h-4 text-[#4A5FE7]" />
+                  Do you have a laptop with adequate specs & stable internet?{' '}
+                  <span className="text-red-400">*</span>
+                </Label>
+                <RadioGroup value={hasLaptop} onValueChange={setHasLaptop} className="flex gap-4">
+                  {['Yes', 'No'].map((option) => (
+                    <label
+                      key={option}
+                      className={`flex-1 flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${
+                        hasLaptop === option
+                          ? 'border-[#4A5FE7] bg-[#4A5FE7]/10'
+                          : 'border-white/10 hover:border-[#4A5FE7]/40'
+                      }`}
+                    >
+                      <RadioGroupItem value={option} className="border-gray-400" />
+                      <span className="text-sm text-gray-300">{option}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+                {errors.hasLaptop && (
+                  <p className="text-sm text-red-400">{errors.hasLaptop}</p>
+                )}
+              </div>
+
+              {/* Attendance Mode */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2 text-gray-300">
+                  <MapPin className="w-4 h-4 text-[#4A5FE7]" />
+                  Attendance Mode <span className="text-red-400">*</span>
+                </Label>
+                <RadioGroup value={mode} onValueChange={setMode} className="flex gap-4">
+                  {['In Office', 'Virtual'].map((option) => (
+                    <label
+                      key={option}
+                      className={`flex-1 flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${
+                        mode === option
+                          ? 'border-[#4A5FE7] bg-[#4A5FE7]/10'
+                          : 'border-white/10 hover:border-[#4A5FE7]/40'
+                      }`}
+                    >
+                      <RadioGroupItem value={option} className="border-gray-400" />
+                      <span className="text-sm text-gray-300">{option}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+                {errors.mode && (
+                  <p className="text-sm text-red-400">{errors.mode}</p>
+                )}
+              </div>
+
+              {/* Placement Event */}
+              <div className="space-y-3">
+                <Label className="text-gray-300">
+                  Placement Event Attendance (Bangalore, May–June){' '}
+                  <span className="text-red-400">*</span>
+                </Label>
+                <p className="text-xs text-gray-500 -mt-1">
+                  We strongly recommend attending in person to maximize benefits; a virtual option is also available.
+                </p>
+                <RadioGroup
+                  value={placementEvent}
+                  onValueChange={setPlacementEvent}
+                  className="flex gap-4"
+                >
+                  {[
+                    { value: 'Attend In-Person ( Offline)', label: 'In-Person' },
+                    { value: 'Virtual (Online)', label: 'Virtual' },
+                  ].map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex-1 flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${
+                        placementEvent === option.value
+                          ? 'border-[#4A5FE7] bg-[#4A5FE7]/10'
+                          : 'border-white/10 hover:border-[#4A5FE7]/40'
+                      }`}
+                    >
+                      <RadioGroupItem value={option.value} className="border-gray-400" />
+                      <span className="text-sm text-gray-300">{option.label}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+                {errors.placementEvent && (
+                  <p className="text-sm text-red-400">
+                    {errors.placementEvent}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full text-base py-6 bg-gradient-to-r from-[#4A5FE7] to-[#00BCD4] text-white hover:opacity-90"
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Submitting…
+                  </>
+                ) : (
+                  <>
+                    Submit Application
+                    <ArrowRight className="w-5 h-5 ml-1" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </section>
   )

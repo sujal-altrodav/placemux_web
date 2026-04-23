@@ -12,20 +12,10 @@ interface PricingTier {
 
 const TIERS: PricingTier[] = [
   {
-    name: 'Training Only',
-    prices: [{ label: 'Final Year', price: '49,999' }, { label: 'Pre-Final Year', price: '39,999' }],
-    features: ['Full track curriculum access', 'Live instructor-led sessions', 'Hands-on projects & assignments', 'Weekly mentor sessions', 'Certificate of completion', 'Peer learning community'],
-  },
-  {
     name: 'Program + Placement Event',
     popular: true,
-    prices: [{ label: 'Final Year', price: '79,999' }, { label: 'Pre-Final Year', price: '69,999' }],
-    features: ['Everything in Training Only', '2-Day Mega Placement Event access', 'Resume & portfolio review', 'Mock interview sessions', 'Company-specific preparation', 'Placement guarantee*', '1-on-1 career counseling', 'Priority mentor access'],
-  },
-  {
-    name: 'Event Entry Only',
-    prices: [{ label: 'One-time', price: '29,999' }],
-    features: ['2-Day Mega Placement Event access', 'Company interaction sessions', 'On-spot interview opportunities', 'Networking with 100+ companies', 'Basic resume review'],
+    prices: [{ label: '', price: '90,000' }],
+    features: ['Full track curriculum access', 'Live instructor-led sessions', 'Hands-on projects & assignments', 'Weekly mentor sessions', 'Certificate of completion', '2-Day Mega Placement Event access', 'Resume & portfolio review', 'Mock interview sessions', 'Company-specific preparation', 'Placement guarantee*', '1-on-1 career counseling', 'Priority mentor access'],
   },
 ]
 
@@ -43,7 +33,7 @@ export default function Pricing() {
           <p className="text-gray-500 mt-4 max-w-2xl mx-auto">Invest in your career with our affordable programs. All prices include GST.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <div className="grid md:grid-cols-1 gap-6 mb-10 max-w-2xl mx-auto">
           {TIERS.map((tier) => (
             <div key={tier.name} className={`bg-white border rounded-2xl p-6 flex flex-col relative transition-all duration-300 hover:shadow-lg ${tier.popular ? 'border-[#4A5FE7] shadow-xl shadow-[#4A5FE7]/10 scale-[1.02]' : 'border-gray-100'}`}>
               {tier.popular && (
@@ -56,7 +46,7 @@ export default function Pricing() {
                 {Array.isArray(tier?.prices) && tier.prices.map((p) => (
                   <div key={p.label} className="flex items-baseline gap-2">
                     <span className="text-3xl font-bold font-mono text-gray-900">&#8377;{p.price}</span>
-                    <span className="text-sm text-gray-400">{p.label}</span>
+                    {p.label && <span className="text-sm text-gray-400">{p.label}</span>}
                   </div>
                 ))}
               </div>

@@ -48,8 +48,12 @@ export default function ForColleges() {
 
           <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4A5FE7] to-[#00BCD4] flex items-center justify-center text-white text-xl font-bold">
-                CR
+              <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0">
+                <img 
+                  src="https://drive.google.com/file/d/1DqVBoe7NKqTNjDJKy7SHFdJzVT9nTyQm/view?usp=drive_link" 
+                  alt="Dr. Chiranjiv Roy" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-gray-900">Dr. Chiranjiv Roy</h4>

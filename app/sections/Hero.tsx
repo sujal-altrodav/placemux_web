@@ -85,15 +85,6 @@ export default function Hero() {
           </div>
         </div>
       </div>
-
-      {/* Company marquee */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-white/5 py-5 overflow-hidden">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {['Google', 'Microsoft', 'Amazon', 'Netflix', 'Flipkart', 'Swiggy', 'Razorpay', 'PhonePe', 'Atlassian', 'Uber', 'Zomato', 'Paytm', 'Google', 'Microsoft', 'Amazon', 'Netflix', 'Flipkart', 'Swiggy', 'Razorpay', 'PhonePe', 'Atlassian', 'Uber', 'Zomato', 'Paytm'].map((company, i) => (
-            <span key={i} className="mx-8 text-sm text-gray-600 font-medium">{company}</span>
-          ))}
-        </div>
-      </div>
     </section>
   )
 }

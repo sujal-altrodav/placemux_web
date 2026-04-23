@@ -15,7 +15,6 @@ import Pricing from './sections/Pricing'
 import EnrollmentForm from './sections/EnrollmentForm'
 import FAQ from './sections/FAQ'
 import Footer from './sections/Footer'
-import ChatWidget from './sections/ChatWidget'
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -91,7 +90,6 @@ export default function Page() {
         <div className="bg-[#060812] text-white">
           <Footer />
         </div>
-        <ChatWidget />
       </div>
     </ErrorBoundary>
   )
