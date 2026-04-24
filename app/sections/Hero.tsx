@@ -70,17 +70,7 @@ export default function Hero() {
                 </div>
               </div>
               <p className="text-3xl font-bold font-mono text-[#4CAF50]">24 LPA</p>
-              <p className="text-xs text-gray-500 mt-1">Product-Based Company</p>
-            </div>
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-2xl ml-8">
-              <p className="text-xs text-gray-400 mb-2">Live Bidding</p>
-              <div className="flex items-end gap-2">
-                <p className="text-3xl font-bold font-mono bg-gradient-to-r from-[#4A5FE7] to-[#00BCD4] bg-clip-text text-transparent">18</p>
-                <p className="text-sm text-gray-500 mb-1">companies bidding</p>
-              </div>
-              <div className="mt-3 w-full bg-white/10 rounded-full h-2">
-                <div className="bg-gradient-to-r from-[#4A5FE7] to-[#00BCD4] h-2 rounded-full" style={{ width: '72%' }} />
-              </div>
+              <p className="text-xs text-gray-500 mt-1">BlackRock</p>
             </div>
           </div>
         </div>

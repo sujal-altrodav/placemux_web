@@ -42,10 +42,10 @@ export default function Pricing() {
                 </Badge>
               )}
               <h3 className="text-lg font-semibold mb-4 text-gray-900">{tier.name}</h3>
-              <div className="space-y-2 mb-6">
+              <div className="space-y-1 mb-6">
                 {Array.isArray(tier?.prices) && tier.prices.map((p) => (
                   <div key={p.label} className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold font-mono text-gray-900">&#8377;{p.price}</span>
+                    <span className="text-2xl font-bold text-gray-900">&#8377;{p.price}</span>
                     {p.label && <span className="text-sm text-gray-400">{p.label}</span>}
                   </div>
                 ))}

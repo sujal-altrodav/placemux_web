@@ -11,7 +11,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div>
-            <img src="/image.png" alt="PlaceMux" className="h-9 w-auto object-contain mb-4" />
+            <img src="/logo2.png" alt="PlaceMux" className="h-9 w-auto object-contain mb-4" />
             <p className="text-sm text-gray-500 mb-4 leading-relaxed">Accelerating campus-to-career transitions for engineering students across India.</p>
             <div className="flex gap-3">
               {[FiTwitter, FiLinkedin, FiInstagram, FiYoutube].map((Icon, i) => (
@@ -53,7 +53,7 @@ export default function Footer() {
 
         <div className="border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="/image.png" alt="PlaceMux" className="h-7 w-auto object-contain" />
+            <img src="/logo2.png" alt="PlaceMux" className="h-7 w-auto object-contain" />
             <p className="text-xs text-gray-600">2024-2026 Placemux. All rights reserved.</p>
           </div>
           <div className="flex gap-6">
