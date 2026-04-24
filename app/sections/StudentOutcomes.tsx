@@ -11,6 +11,9 @@ export default function StudentOutcomes() {
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-950">
             Our Students Are Getting Real Offers
           </h2>
+          <p className="text-xl font-semibold text-[#6C63FF] mt-4">
+            Many more and counting!
+          </p>
         </div>
 
         <div className="mx-auto max-w-5xl">
