@@ -43,7 +43,7 @@ export default function Footer() {
           <div>
             <p className="font-semibold mb-4 text-sm">Contact</p>
             <ul className="space-y-2.5 text-sm text-gray-500">
-              <li>hr@placemux.com</li>
+              <li>contact@placemux.com</li>
               <li>+91 7022665938</li>
               <li>Devarabisanahalli, Bellandur, Bangalore South, Karnataka – 560103</li>
               <li>Mon - Sat, 10 AM - 6 PM IST</li>
